@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Points Conversion</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+      padding-top: 2rem;
+    }
+
+    .content {
+      display: flex;
+      justify-content: space-between; /* Align both sides */
+      padding: 20px;
+      flex-wrap: wrap; /* Ensure that content wraps on smaller screens */
+    }
+
+    .option-card {
+      background: linear-gradient(135deg, #FE7743, #447D9B);
+      color: #fff;
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 10px;
+      width: 45%; /* Give space for history to be beside */
+    }
+
+    .history-card {
+      background: linear-gradient(135deg, #FE7743, #447D9B);
+      color: #fff;
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 10px;
+      width: 45%; /* Width same as option-card */
+      overflow-y: auto;
+      max-height: 400px;
+    }
+
+    .card-title { font-size: 1.5rem; text-align: center; }
+    .result {
+      min-height: 4rem;
+      padding: 20px;
+      border-radius: 10px;
+      color: #fff;
+      background-color: #333;
+      font-size: 2rem; /* Larger font size for result */
+    }
+
+    .btn-warning {
+      background-color: #FE7743;
+      border-color: #FE7743;
+    }
+
+    .btn-warning:hover {
+      background-color: #447D9B;
+      border-color: #447D9B;
+    }
+
+    .flag-img {
+      width: 80px; /* Default size */
+      height: 60px;
+      display: block;
+      margin: 0 auto 10px;
+      transition: all 0.3s ease; /* Smooth transition for resizing */
+    }
+
+    select {
+      padding-left: 40px; /* Space for flag if it's needed in select */
+    }
+
+    .history-list {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .history-list li {
+      margin-bottom: 10px;
+    }
+
+    .clear-history-btn {
+      display: none; /* Initially hidden */
+      background-color: #dc3545;
+      border-color: #dc3545;
+    }
+
+    .clear-history-btn:hover {
+      background-color: #c82333;
+      border-color: #c82333;
+    }
+
+    @media (max-width: 768px) {
+      .content {
+        flex-direction: column; /* Stack the elements vertically on small screens */
+      }
+
+      .option-card,
+      .history-card {
+        width: 100%; /* Make cards take full width */
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="content">
+  <!-- Points Calculator Card -->
+  <div class="option-card">
+    <h5 class="card-title">Points Calculator</h5>
+
+    <div>
+      <label for="amount">Enter Amount:</label>
+      <input type="text" class="form-control" id="amount" placeholder="Enter amount" onkeydown="checkEnter(event)">
+    </div>
+    <br>
+
+    <!-- Display flag above the select dropdown -->
+    <div id="currencyFlag" class="text-center mb-3">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Flag_of_Saudi_Arabia.png" class="flag-img" alt="SAR">
+    </div>
+
+    <div class="mt-3">
+      <label for="currency">Choose Currency:</label>
+
+      <!-- Currency Dropdown -->
+      <select id="currency" class="form-select" onchange="updateFlag()">
+        <option value="sar">SAR (Saudi Arabia)</option>
+        <option value="aed">AED (UAE)</option>
+        <option value="kwd">KWD (Kuwait)</option>
+      </select>
+    </div>
+
+    <button class="btn btn-warning w-100 mt-3" onclick="convertCurrency()">Convert</button>
+    <div id="conversionResult" class="result text-center"></div>
+  </div>
+
+  <!-- History Card -->
+  <div class="history-card">
+    <h5 class="card-title">Calculation History</h5>
+    <ul id="historyList" class="list-group list-group-flush history-list"></ul>
+    <button id="clearHistoryBtn" class="btn btn-danger w-100 clear-history-btn" onclick="clearHistory()">Clear History</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Mapping flags to currencies
+  const flags = {
+    sar: 'https://upload.wikimedia.org/wikipedia/commons/2/23/Flag_of_Saudi_Arabia.png',
+    aed: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Flag_of_the_United_Arab_Emirates.svg/960px-Flag_of_the_United_Arab_Emirates.svg.png',
+    kwd: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Flag_of_Kuwait_%283-2%29.svg/800px-Flag_of_Kuwait_%283-2%29.svg.png'
+  };
+
+  // Update the flag image based on the selected currency
+  function updateFlag() {
+    const currency = document.getElementById('currency').value;
+    const flagImg = document.querySelector('#currencyFlag img');
+    flagImg.src = flags[currency]; // Update the flag image source based on selected currency
+    resizeFlag();
+  }
+
+  // Resize the flag when currency changes
+  function resizeFlag() {
+    const flagImg = document.querySelector('#currencyFlag img');
+    flagImg.style.width = '120px';  // Resize to larger size when a new currency is selected
+    flagImg.style.height = '90px';
+  }
+
+  // Convert currency and display result
+  function convertCurrency() {
+    const amount = parseFloat(document.getElementById('amount').value);
+    const currency = document.getElementById('currency').value;
+    const resultDiv = document.getElementById('conversionResult');
+    const priceInput = document.getElementById("amount").value.trim();
+
+    // Show Clear History button if the secret code 'fares' is entered and UAE currency is selected
+    if (currency === 'aed' && priceInput.toLowerCase() === 'fares') {
+      document.getElementById('clearHistoryBtn').style.display = 'block';
+      resultDiv.innerHTML = 'Secret code accepted. Click "Clear History" to clear the history.';
+      return;
+    }
+
+    // Hide the Clear History button when secret code is not entered
+    document.getElementById('clearHistoryBtn').style.display = 'none';
+
+    if (isNaN(amount) || amount <= 0) {
+      resultDiv.innerHTML = '';
+      return;
+    }
+
+    const conversionRates = {
+      "sar": 3.75,
+      "aed": 3.67,
+      "kwd": 0.305
+    };
+
+    const usdAmount = amount / conversionRates[currency];
+    const finalAmount = usdAmount * 7;
+
+    resultDiv.innerHTML = `${finalAmount.toFixed(2)} Points`;
+
+    // Save history
+    saveHistory(currency, amount, finalAmount);
+  }
+
+  // Function to trigger conversion on pressing Enter
+  function checkEnter(event) {
+    if (event.key === 'Enter') {
+      convertCurrency();
+    }
+  }
+
+  // Save history to localStorage and update history list
+  function saveHistory(currency, input, total) {
+    const history = JSON.parse(localStorage.getItem('calcHistory') || '[]');
+    history.push({
+      time: new Date().toLocaleString(),
+      currency: currency,
+      input: input,
+      total: total.toFixed(2)
+    });
+    localStorage.setItem('calcHistory', JSON.stringify(history));
+
+    renderHistory();
+  }
+
+  // Render history from localStorage
+  function renderHistory() {
+    const historyList = document.getElementById('historyList');
+    const history = JSON.parse(localStorage.getItem('calcHistory') || '[]');
+    historyList.innerHTML = ''; // Clear the history list
+
+    history.slice().reverse().forEach(e => {
+      const li = document.createElement('li');
+      li.className = 'list-group-item';
+      li.textContent = `[${e.time}] ${e.currency.toUpperCase()} ${e.input} → ${e.total} Points`;
+      historyList.appendChild(li);
+    });
+  }
+
+  // Clear history from localStorage
+  function clearHistory() {
+    localStorage.removeItem('calcHistory');
+    renderHistory();
+  }
+
+  // Load history when the page loads
+  window.onload = renderHistory;
+</script>
+
+</body>
+</html>

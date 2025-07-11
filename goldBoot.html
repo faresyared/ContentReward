@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gold Calculator</title>
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+
+  <style>
+    body {
+      background-color: #f0f2f5; /* لون خلفية أفتح وأكثر حداثة */
+      padding-top: 2rem;
+      color: #333; /* لون نص عام أغمق قليلاً */
+      font-family: 'Poppins', sans-serif; /* تطبيق الخط الجديد */
+    }
+
+    .card-calc {
+      background: linear-gradient(135deg, #FE7743, #447D9B); /* تدرج لوني جذاب */
+      color: #fff;
+      border-radius: 15px; /* حواف دائرية أكبر */
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* ظل أنيق */
+      overflow: hidden; /* لإخفاء أي جزء من الصورة يخرج عن الكارد */
+    }
+
+    .card-calc h2 {
+      font-size: 2.2rem; /* حجم خط أكبر للعنوان */
+      font-weight: 700; /* خط سميك جداً */
+      margin-bottom: 1.5rem; /* مسافة تحت العنوان */
+      color: #fff; /* لون أبيض للعنوان */
+    }
+
+    .gold-image-container {
+      background-color: #f8f9fa; /* خلفية بيضاء للصورة */
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .gold-img {
+      max-width: 100%; /* تأكد أن الصورة لا تتجاوز عرض الكارد */
+      height: 150px; /* ارتفاع ثابت للصورة */
+      object-fit: contain; /* للتأكد من ظهور الصورة كاملة دون قص */
+      border-radius: 8px; /* حواف دائرية للصورة */
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* ظل خفيف للصورة */
+    }
+
+    .flag-img {
+      width: 48px;
+      height: 32px;
+      object-fit: cover;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+
+    .result {
+      min-height: 4rem;
+      padding: 25px; /* زيادة Padding */
+      border-radius: 12px; /* حواف دائرية أكبر */
+      color: #fff;
+      background-color: #333;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2); /* ظل داخلي للنتيجة */
+      font-size: 1.2rem; /* حجم خط أكبر للنتيجة */
+      font-weight: 600; /* خط أثقل للنتيجة */
+      display: flex; /* لكي يتم توسيط النص عمودياً */
+      flex-direction: column; /* لتجميع عناصر النتيجة عمودياً */
+      align-items: center; /* توسيط أفقي */
+      justify-content: center; /* توسيط عمودي */
+      margin-top: 1.5rem; /* مسافة علوية */
+    }
+
+    .result p {
+      margin-bottom: 0.5rem; /* مسافة بين فقرات النتيجة */
+    }
+    .result p:last-child {
+      margin-bottom: 0; /* لا مسافة للفقرة الأخيرة */
+    }
+
+    .form-label {
+        font-weight: 600; /* خط أثقل لأسماء الحقول */
+        color: #fff; /* لون أبيض للـ labels داخل الكارد */
+    }
+
+    .form-control {
+        border-radius: 8px; /* حواف دائرية لحقول الإدخال */
+        border: 1px solid #ddd; /* لون حدود أفتح */
+        padding: 10px 15px; /* Padding أكبر */
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08); /* ظل داخلي خفيف */
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #FE7743; /* لون حدود مميز عند التركيز */
+        box-shadow: 0 0 0 0.25rem rgba(254, 119, 67, 0.25); /* ظل تركيز بلون التدرج */
+    }
+
+    .btn-warning {
+      background-color: #FE7743;
+      border-color: #FE7743;
+      padding: 12px 25px; /* زيادة حجم الزر */
+      border-radius: 8px; /* حواف دائرية للزر */
+      font-weight: 600; /* خط أثقل للزر */
+      transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .btn-warning:hover {
+      background-color: #447D9B;
+      border-color: #447D9B;
+      transform: translateY(-2px); /* رفع الزر قليلاً عند التمرير */
+    }
+
+    .btn-danger {
+      background-color: #dc3545;
+      border-color: #dc3545;
+      font-weight: 600;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .btn-danger:hover {
+      background-color: #c82333;
+      transform: translateY(-2px);
+    }
+
+    @keyframes pop {
+      0%  { transform: scale(.8); opacity: .5; }
+      60% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+
+    .animate {
+      animation: pop .4s ease-out;
+    }
+
+    .footer {
+      color: rgba(255, 255, 255, 0.8); /* لون أفتح للفوتر */
+      font-size: 1.1rem; /* حجم خط أكبر للفوتر */
+      margin-top: 2rem; /* مسافة علوية أكبر */
+    }
+
+    .gold-result { /* هذا الـ div لم يعد ضرورياً بعد دمج النتائج في #result */
+      display: none; /* إخفاؤه */
+    }
+
+    .copy-btn {
+      margin-top: 15px; /* زيادة المسافة العلوية */
+      padding: 10px 25px; /* زيادة حجم الزر */
+      background-color: #28a745; /* لون أخضر جميل */
+      color: white;
+      border: none;
+      border-radius: 8px; /* حواف دائرية */
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .copy-btn:hover {
+      background-color: #218838;
+      transform: translateY(-2px);
+    }
+
+    /* History Card Styling */
+    .col-md-6 > .card {
+        background-color: #ffffff; /* خلفية بيضاء لكارد السجل */
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+    }
+
+    .col-md-6 > .card .card-title {
+        color: #447D9B; /* لون أزرق لعنوان السجل */
+        font-weight: 700;
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+    }
+
+    .list-group-item {
+        background-color: #f8f9fa; /* لون خلفية أفتح لعناصر السجل */
+        border: 1px solid #eee;
+        margin-bottom: 8px;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 0.95rem;
+        color: #555;
+        font-weight: 500;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="row gy-4 justify-content-center"> <div class="col-md-7 col-lg-6"> <div class="card card-calc shadow-lg">
+        <div class="card-body p-4"> <div class="gold-image-container">
+            <img
+              src="https://www.pngall.com/wp-content/uploads/2016/04/Gold-PNG-Image.png"
+              alt="Pile of Gold"
+              class="gold-img"
+            >
+          </div>
+          <h2 class="card-title text-center mb-4">GOLD Calculator</h2>
+
+          <div class="mb-3">
+            <label for="price" class="form-label">Enter Price:</label>
+            <input
+              type="text"
+              id="price"
+              class="form-control"
+              placeholder="Enter price "
+              onkeydown="if(event.key==='Enter') calculatePrice()"
+            >
+          </div>
+
+          <label class="form-label">Choose Currency:</label>
+          <div class="input-group mb-3">
+            <span class="input-group-text p-0">
+              <img
+                id="flag-icon"
+                src="https://upload.wikimedia.org/wikipedia/commons/2/23/Flag_of_Saudi_Arabia.png"
+                alt="flag"
+                class="flag-img"
+              >
+            </span>
+            <select
+              id="currency"
+              class="form-select"
+              onchange="updateFlag()"
+            >
+              <option value="sar">SAR (Saudi Arabia)</option>
+              <option value="aed">AED (UAE)</option>
+              <option value="kw">KWD (Kuwait)</option>
+            </select>
+          </div>
+
+          <button
+            class="btn btn-warning w-100 mb-3" onclick="calculatePrice()"
+          >
+            Calculate
+          </button>
+
+          <button
+            id="clearHistoryBtn"
+            class="btn btn-danger w-100 mb-3"
+            style="display: none;"
+            onclick="clearHistory()"
+          >
+            Clear History
+          </button>
+
+          <div
+            id="result"
+            class="result border rounded p-3 text-center"
+          ></div>
+
+          <button id="copy-btn" class="copy-btn w-100" onclick="copyToClipboard()">Copy Total Value</button> <div class="mt-4 text-center footer"> <p class="mb-1">coming soon</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-5 col-lg-5"> <div class="card shadow-lg">
+        <div class="card-body">
+          <h3 class="card-title mb-3">Calculation History</h3>
+          <ul
+            id="historyList"
+            class="list-group list-group-flush"
+            style="max-height: 400px; overflow-y: auto;"
+          ></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  const flags = {
+    sar: 'https://upload.wikimedia.org/wikipedia/commons/2/23/Flag_of_Saudi_Arabia.png',
+    aed: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Flag_of_the_United_Arab_Emirates.svg/960px-Flag_of_the_United_Arab_Emirates.svg.png',
+    kw:  'https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Flag_of_Kuwait_%283-2%29.svg/800px-Flag_of_Kuwait_%283-2%29.svg.png'
+  };
+
+  function updateFlag(){
+    document.getElementById('flag-icon').src = flags[document.getElementById('currency').value];
+  }
+
+    const priceRanges = {
+      "sar": [
+      { min: 1, max: 370, base: 19500, factor: 328, free: 800 },
+      { min: 371, max: 499, base: 24500, factor: 410, free: 900 },
+      { min: 500, max: 599, base: 32500, factor: 547, free: 1300 },
+      { min: 600, max: 750, base: 39000, factor: 657, free: 1800 },
+      { min: 751, max: 999, base: 49000, factor: 820, free: 2000 },
+      { min: 1000, max: 1549, base: 65000, factor: 1095, free: 3000 },
+      { min: 1550, max: 2049, base: 98000, factor: 1640, free: 5000 },
+      { min: 2050, max: 2599, base: 130000, factor: 2190, free: 7000 },
+      { min: 2600, max: 3149, base: 164000, factor: 2740, free: 10000 },
+      { min: 3150, max: 4199, base: 195500, factor: 3285, free: 15000 },
+      { min: 4200, max: 4849, base: 260000, factor: 4380, free: 20000 },
+      { min: 4850, max: 5249, base: 295000, factor: 4928, free: 22000 },
+      { min: 5250, max: 13000, base: 330000, factor: 5475, free: 25000 },
+      ],
+      "aed": [
+      { min: 1, max: 350, base: 19500, factor: 308, free: 800 },
+      { min: 351, max: 490, base: 24500, factor: 385, free: 900 },
+      { min: 491, max: 599, base: 32500, factor: 510, free: 1300 },
+      { min: 600, max: 729, base: 39000, factor: 615, free: 1800 },
+      { min: 730, max: 949, base: 49000, factor: 765, free: 2000 },
+      { min: 950, max: 1189, base: 65000, factor: 1025, free: 3000 },
+      { min: 1190, max: 1989, base: 98000, factor: 1535, free: 5000 },
+      { min: 1990, max: 2499, base: 130000, factor: 2050, free: 7000 },
+      { min: 2500, max: 2999, base: 164000, factor: 2560, free: 10000 },
+      { min: 3000, max: 3999, base: 195500, factor: 3070, free: 15000 },
+      { min: 4000, max: 4449, base: 260000, factor: 4100, free: 20000 },
+      { min: 4450, max: 4999, base: 295000, factor: 4600, free: 22000 },
+      { min: 5000, max: 13000, base: 330000, factor: 5100, free: 25000 },
+      { min: 13001, max: 60000, base: 930000, factor: 14360, free: 70000 },
+      ],
+      "kw": [
+        { min: 1, max: 28, base: 19500, factor: 25, free: 800 },
+        { min: 29, max: 38, base: 24500, factor: 31, free: 900 },
+        { min: 39, max: 46, base: 32500, factor: 41, free: 1300 },
+        { min: 47, max: 58, base: 39000, factor: 49, free: 1800 },
+        { min: 59, max: 78, base: 49000, factor: 61, free: 2000 },
+        { min: 79, max: 92, base: 65000, factor: 82, free: 3000 },
+        { min: 112, max: 154, base: 98000, factor: 122, free: 5000 },
+        { min: 155, max: 190, base: 130000, factor: 163, free: 7000 },
+        { min: 191, max: 236, base: 164000, factor: 204, free: 10000 },
+        { min: 237, max: 315, base: 195500, factor: 245, free: 15000 },
+        { min: 316, max: 351, base: 260000, factor: 325, free: 20000 },
+        { min: 352, max: 399, base: 295000, factor: 367, free: 22500 },
+        { min: 400, max: 479, base: 330000, factor: 408, free: 25000 },
+      ]
+    };
+
+
+  let history = JSON.parse(localStorage.getItem('goldHistory') || '[]');
+  const historyList = document.getElementById('historyList');
+
+  function renderHistory() {
+    historyList.innerHTML = '';
+    // إضافة زر مسح السجل فقط إذا كان هناك سجل
+    if (history.length > 0) {
+        document.getElementById('clearHistoryBtn').style.display = 'block';
+    } else {
+        document.getElementById('clearHistoryBtn').style.display = 'none';
+    }
+
+    history.slice().reverse().forEach(e => {
+      const li = document.createElement('li');
+      li.className = 'list-group-item';
+      li.innerHTML = `<strong>[${e.time}]</strong> ${e.currency.toUpperCase()} ${e.input} &rarr; <strong>${e.total.toLocaleString()}</strong> k Gold`;
+      historyList.appendChild(li);
+    });
+  }
+
+  function saveHistory() {
+    localStorage.setItem('goldHistory', JSON.stringify(history));
+  }
+
+  function clearHistory() {
+    history = [];
+    saveHistory();
+    renderHistory();
+    document.getElementById('result').className = 'result border rounded p-3 text-center bg-info text-white';
+    document.getElementById('result').textContent = 'History cleared.';
+  }
+
+  function calculatePrice() {
+    const priceInput = document.getElementById("price").value.trim();
+    const currency = document.getElementById("currency").value;
+    const res = document.getElementById("result");
+    const copyBtn = document.getElementById("copy-btn"); // الوصول لزر النسخ
+
+    // إعادة ضبط زر النسخ للظهور أو الاختفاء بناءً على النتيجة
+    copyBtn.style.display = 'none';
+    document.getElementById('clearHistoryBtn').style.display = 'none'; // إخفاء زر مسح السجل مبدئياً
+
+    if (currency === 'aed' && priceInput.toLowerCase() === 'fares') {
+      document.getElementById('clearHistoryBtn').style.display = 'block'; // إظهار زر مسح السجل
+      res.className = 'result border rounded p-3 text-center bg-info text-white animate';
+      res.textContent = 'Secret code accepted. Click "Clear History".';
+      res.addEventListener('animationend', () => res.classList.remove('animate'), { once: true });
+      return;
+    }
+
+
+    const price = parseFloat(priceInput);
+    if (isNaN(price)) {
+      res.className = 'result border rounded p-3 text-center bg-danger text-white animate';
+      res.textContent = 'Please enter a numeric price.';
+      res.addEventListener('animationend', () => res.classList.remove('animate'), { once: true });
+      return;
+    }
+
+    const sel = priceRanges[currency].find(r => price >= r.min && price <= r.max);
+    if (!sel) {
+      res.className = 'result border rounded p-3 text-center bg-danger text-white animate';
+      res.textContent = 'Price is out of available range for selected currency.';
+      res.addEventListener('animationend', () => res.classList.remove('animate'), { once: true });
+      return;
+    }
+
+    const base = sel.base * (price / sel.factor);
+    const free = sel.free > 0 ? sel.free * (price / sel.factor) : 0;
+    const total = base + free;
+
+    res.className = 'result border rounded p-4 text-center bg-dark text-white animate';
+    res.innerHTML = `
+      <p><span class="fw-bold text-success">Base :</span>
+           ${Math.round(base).toLocaleString()} k Gold</p>
+      <p><span class="fw-bold text-success">Free :</span>
+           ${Math.round(free).toLocaleString()} k Gold</p>
+      <p><span class="fw-bold" style="color:#FFD700;">Total :</span> ${Math.round(total).toLocaleString()} k Gold</p>
+    `;
+
+    res.addEventListener('animationend', () => res.classList.remove('animate'), { once: true });
+
+    history.push({
+      time: new Date().toLocaleString(),
+      currency, input: priceInput, total: Math.round(total)
+    });
+    saveHistory();
+    renderHistory();
+    copyBtn.style.display = 'block'; // إظهار زر النسخ بعد الحساب
+  }
+
+  function copyToClipboard() {
+    const totalValueText = document.querySelector('#result p:last-child').textContent;
+    // استخراج الرقم فقط من النص، مع الأخذ في الاعتبار أن toLocaleString() قد يضيف فواصل
+    const numericValue = totalValueText.match(/[\d,.]+/g);
+    if (numericValue) {
+        // إزالة الفواصل وتجنب تحويلها إلى أعداد عشرية خاطئة إذا كانت فواصل الآلاف
+        const valueToCopy = numericValue[0].replace(/,/g, '');
+        navigator.clipboard.writeText(valueToCopy)
+            .then(() => {
+                alert('Total value copied to clipboard!');
+            })
+            .catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy the value.');
+            });
+    }
+  }
+
+  // Initial render on load
+  renderHistory();
+  updateFlag();
+</script>
+
+</body>
+</html>

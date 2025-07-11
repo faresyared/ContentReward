@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add/Edit Price Ranges & Single Prices</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f2f5;
+            padding: 2rem;
+            font-family: 'Poppins', sans-serif;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #FE7743, #447D9B);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            font-weight: 600;
+        }
+        .form-label {
+            font-weight: 600;
+        }
+        .table {
+            vertical-align: middle;
+        }
+        .table th {
+            font-weight: 600;
+        }
+        .btn-sm {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-5">
+            <div class="card mb-4">
+                <div class="card-header text-center py-3">
+                    <h4 id="form-title">Add New Price Range</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div id="alert-container"></div>
+                    
+                    <form id="price-form">
+                        <input type="hidden" id="edit-mode-indicator">
+                        <input type="hidden" id="edit-calc-type">
+                        <input type="hidden" id="edit-currency">
+                        <input type="hidden" id="edit-index">
+
+                        <div class="row g-3">
+                            <div class="col-md-6 mb-3">
+                                <label for="calculatorType" class="form-label">Calculator Type</label>
+                                <select id="calculatorType" class="form-select">
+                                    <option value="diamond">Diamond</option>
+                                    <option value="gold">Gold</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="currency" class="form-label">Currency</label>
+                                <select id="currency" class="form-select">
+                                    <option value="sar">SAR</option>
+                                    <option value="aed">AED</option>
+                                    <option value="kw">KWD</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="min" class="form-label">Min Price</label>
+                                <input type="number" class="form-control" id="min" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="max" class="form-label">Max Price</label>
+                                <input type="number" class="form-control" id="max" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="base" class="form-label">Base</label>
+                                <input type="number" class="form-control" id="base" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="factor" class="form-label">Factor</label>
+                                <input type="number" step="any" class="form-control" id="factor" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="free" class="form-label">Free</label>
+                                <input type="number" class="form-control" id="free" required>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                               <button type="submit" id="submit-btn" class="btn btn-primary" style="background-color: #447D9B; border-color: #447D9B;">Add Range</button>
+                               <button type="button" id="cancel-edit-btn" class="btn btn-secondary" style="display:none;">Cancel Edit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header text-center py-3">
+                    <h4>Add Single Price</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div id="single-price-alert-container"></div>
+                    
+                    <form id="single-price-form">
+                        <div class="row g-3">
+                            <div class="col-md-6 mb-3">
+                                <label for="singleCalcType" class="form-label">Calculator Type</label>
+                                <select id="singleCalcType" class="form-select">
+                                    <option value="diamond">Diamond</option>
+                                    <option value="gold">Gold</option>
+                                    <option value="points">Points</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="singleCurrency" class="form-label">Currency</label>
+                                <select id="singleCurrency" class="form-select">
+                                    <option value="sar">SAR</option>
+                                    <option value="aed">AED</option>
+                                    <option value="kw">KWD</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label for="singlePrice" class="form-label">Price</label>
+                                <input type="number" step="any" class="form-control" id="singlePrice" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="singleBase" class="form-label">Base</label>
+                                <input type="number" class="form-control" id="singleBase" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="singleFree" class="form-label">Free</label>
+                                <input type="number" class="form-control" id="singleFree" required>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-success" style="background-color: #FE7743; border-color: #FE7743;">Add Single Price</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card mb-4">
+                <div class="card-header text-center py-3">
+                    <h4>Added Price Ranges</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                               <label for="filter-currency" class="form-label">Filter by Currency:</label>
+                               <select id="filter-currency" class="form-select">
+                                 <option value="all">All</option>
+                                 <option value="sar">SAR</option>
+                                 <option value="aed">AED</option>
+                                 <option value="kw">KWD</option>
+                               </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Currency</th>
+                                    <th>Min</th>
+                                    <th>Max</th>
+                                    <th>Base</th>
+                                    <th>Factor</th>
+                                    <th>Free</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-table-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header text-center py-3">
+                    <h4>Added Single Prices</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                               <label for="filter-single-currency" class="form-label">Filter by Currency:</label>
+                               <select id="filter-single-currency" class="form-select">
+                                 <option value="all">All</option>
+                                 <option value="sar">SAR</option>
+                                 <option value="aed">AED</option>
+                                 <option value="kw">KWD</option>
+                               </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Currency</th>
+                                    <th>Price</th>
+                                    <th>Base</th>
+                                    <th>Free</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="single-price-table-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Elements for Price Ranges ---
+    const priceForm = document.getElementById('price-form');
+    const alertContainer = document.getElementById('alert-container');
+    const historyTableBody = document.getElementById('history-table-body');
+    const filterCurrency = document.getElementById('filter-currency');
+    const submitBtn = document.getElementById('submit-btn');
+    const cancelEditBtn = document.getElementById('cancel-edit-btn');
+    const formTitle = document.getElementById('form-title');
+    const currencySelect = document.getElementById('currency'); 
+
+    // --- Elements for Single Prices ---
+    const singlePriceForm = document.getElementById('single-price-form');
+    const singlePriceAlertContainer = document.getElementById('single-price-alert-container');
+    const singlePriceTableBody = document.getElementById('single-price-table-body');
+    const singleCalcTypeSelect = document.getElementById('singleCalcType');
+    const singleCurrencySelect = document.getElementById('singleCurrency');
+    const singlePriceInput = document.getElementById('singlePrice');
+    const singleBaseInput = document.getElementById('singleBase');
+    const singleFreeInput = document.getElementById('singleFree');
+    const filterSingleCurrency = document.getElementById('filter-single-currency');
+
+    // ** كلمة المرور المطلوبة للحذف **
+    // يمكنك تغيير "0000" إلى كلمة المرور التي تريدها لكلتا الوظيفتين
+    const DELETE_PASSWORD = "0000"; 
+
+    // --- Core Functions for Price Ranges ---
+    const getRanges = () => {
+        const ranges = JSON.parse(localStorage.getItem('calculatorPriceRanges')) || {};
+        // Filter out 'points' calculator type from loaded data if it exists
+        if (ranges.points) {
+            delete ranges.points;
+            saveRanges(ranges); // Save the cleaned data back to localStorage
+        }
+        return ranges;
+    };
+    const saveRanges = (ranges) => localStorage.setItem('calculatorPriceRanges', JSON.stringify(ranges));
+
+    const renderHistory = () => {
+        historyTableBody.innerHTML = '';
+        const allRanges = getRanges();
+        const selectedCurrency = filterCurrency.value;
+
+        for (const calcType in allRanges) {
+            // Skip rendering if calcType is 'points' as it's now handled by single prices
+            if (calcType === 'points') continue; 
+
+            for (const currency in allRanges[calcType]) {
+                if (selectedCurrency === 'all' || selectedCurrency === currency) {
+                    allRanges[calcType][currency].forEach((range, index) => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${calcType.charAt(0).toUpperCase() + calcType.slice(1)}</td>
+                            <td>${currency.toUpperCase()}</td>
+                            <td>${range.min}</td>
+                            <td>${range.max}</td>
+                            <td>${range.base}</td>
+                            <td>${range.factor}</td>
+                            <td>${range.free}</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm edit-btn" data-calc-type="${calcType}" data-currency="${currency}" data-index="${index}">✏️</button>
+                                <button class="btn btn-danger btn-sm delete-btn" data-calc-type="${calcType}" data-currency="${currency}" data-index="${index}">🗑️</button>
+                            </td>
+                        `;
+                        historyTableBody.appendChild(row);
+                    });
+                }
+            }
+        }
+    };
+
+    const showAlert = (message, type, container = alertContainer) => {
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = `<div class="alert alert-${type} alert-dismissible" role="alert"><div>${message}</div><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
+        container.innerHTML = '';
+        container.append(wrapper);
+    };
+
+    const resetForm = () => {
+        const currentCurrency = currencySelect.value; 
+        priceForm.reset();
+        currencySelect.value = currentCurrency; 
+        
+        document.getElementById('edit-mode-indicator').value = '';
+        submitBtn.textContent = 'Add Range';
+        submitBtn.style.backgroundColor = '#447D9B';
+        formTitle.textContent = 'Add New Price Range';
+        cancelEditBtn.style.display = 'none';
+    };
+
+    // --- Core Functions for Single Prices ---
+    const getSinglePrices = () => JSON.parse(localStorage.getItem('calculatorSinglePrices')) || {};
+    const saveSinglePrices = (prices) => localStorage.setItem('calculatorSinglePrices', JSON.stringify(prices));
+
+    const renderSinglePrices = () => {
+        singlePriceTableBody.innerHTML = '';
+        const allSinglePrices = getSinglePrices();
+        const selectedCurrency = filterSingleCurrency.value;
+
+        for (const calcType in allSinglePrices) {
+            for (const currency in allSinglePrices[calcType]) {
+                if (selectedCurrency === 'all' || selectedCurrency === currency) {
+                    const priceData = allSinglePrices[calcType][currency];
+                    if (priceData) { // Ensure priceData exists
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${calcType.charAt(0).toUpperCase() + calcType.slice(1)}</td>
+                            <td>${currency.toUpperCase()}</td>
+                            <td>${priceData.price}</td>
+                            <td>${priceData.base}</td>
+                            <td>${priceData.free}</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm edit-single-btn" data-calc-type="${calcType}" data-currency="${currency}">✏️</button>
+                                <button class="btn btn-danger btn-sm delete-single-btn" data-calc-type="${calcType}" data-currency="${currency}">🗑️</button>
+                            </td>
+                        `;
+                        singlePriceTableBody.appendChild(row);
+                    }
+                }
+            }
+        }
+    };
+
+    const resetSinglePriceForm = () => {
+        const currentCurrency = singleCurrencySelect.value; // Preserve currency
+        singlePriceForm.reset();
+        singleCurrencySelect.value = currentCurrency;
+        singleCalcTypeSelect.value = 'diamond'; // Set a default for calc type
+    };
+
+    // --- Event Handlers for Price Ranges ---
+    priceForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const newRange = {
+            min: parseFloat(document.getElementById('min').value),
+            max: parseFloat(document.getElementById('max').value),
+            base: parseFloat(document.getElementById('base').value),
+            factor: parseFloat(document.getElementById('factor').value),
+            free: parseFloat(document.getElementById('free').value)
+        };
+
+        const allRanges = getRanges();
+        const editMode = document.getElementById('edit-mode-indicator').value;
+
+        if (editMode) {
+            // --- Update Logic ---
+            const calcType = document.getElementById('edit-calc-type').value;
+            const currency = document.getElementById('edit-currency').value;
+            const index = parseInt(document.getElementById('edit-index').value);
+            
+            allRanges[calcType][currency][index] = newRange;
+            showAlert('Range updated successfully!', 'success');
+        } else {
+            // --- Add Logic ---
+            const calcType = document.getElementById('calculatorType').value;
+            const currency = document.getElementById('currency').value;
+
+            if (!allRanges[calcType]) allRanges[calcType] = {};
+            if (!allRanges[calcType][currency]) allRanges[calcType][currency] = [];
+
+            allRanges[calcType][currency].push(newRange);
+            showAlert('Range added successfully!', 'success');
+        }
+        
+        // Sort and save
+        const calcTypeForSort = editMode ? document.getElementById('edit-calc-type').value : document.getElementById('calculatorType').value;
+        const currencyForSort = editMode ? document.getElementById('edit-currency').value : document.getElementById('currency').value;
+        
+        if (allRanges[calcTypeForSort] && allRanges[calcTypeForSort][currencyForSort]) {
+            allRanges[calcTypeForSort][currencyForSort].sort((a, b) => a.min - b.min);
+        }
+        
+        saveRanges(allRanges);
+        renderHistory();
+        resetForm(); 
+    });
+
+    historyTableBody.addEventListener('click', (e) => {
+        const target = e.target.closest('button');
+        if (!target) return;
+
+        const { calcType, currency, index } = target.dataset;
+
+        if (target.classList.contains('delete-btn')) {
+            const password = prompt(`أدخل كلمة المرور لحذف هذا النطاق من ${currency.toUpperCase()}:`);
+            if (password === DELETE_PASSWORD) {
+                const allRanges = getRanges();
+                allRanges[calcType][currency].splice(parseInt(index), 1);
+                
+                if (allRanges[calcType][currency].length === 0) {
+                    delete allRanges[calcType][currency];
+                }
+                if (Object.keys(allRanges[calcType]).length === 0) {
+                    delete allRanges[calcType];
+                }
+                saveRanges(allRanges);
+                renderHistory();
+                showAlert('Range deleted.', 'warning');
+            } else if (password !== null) { 
+                showAlert('كلمة مرور خاطئة. لم يتم حذف النطاق.', 'danger');
+            }
+        } else if (target.classList.contains('edit-btn')) {
+            const allRanges = getRanges();
+            const rangeToEdit = allRanges[calcType][currency][parseInt(index)];
+
+            document.getElementById('min').value = rangeToEdit.min;
+            document.getElementById('max').value = rangeToEdit.max;
+            document.getElementById('base').value = rangeToEdit.base;
+            document.getElementById('factor').value = rangeToEdit.factor;
+            document.getElementById('free').value = rangeToEdit.free;
+            document.getElementById('calculatorType').value = calcType;
+            document.getElementById('currency').value = currency;
+            
+            document.getElementById('edit-mode-indicator').value = 'true';
+            document.getElementById('edit-calc-type').value = calcType;
+            document.getElementById('edit-currency').value = currency;
+            document.getElementById('edit-index').value = index;
+
+            submitBtn.textContent = 'Update Range';
+            submitBtn.style.backgroundColor = '#28a745';
+            formTitle.textContent = 'Edit Price Range';
+            cancelEditBtn.style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+    });
+
+    filterCurrency.addEventListener('change', renderHistory);
+    cancelEditBtn.addEventListener('click', resetForm);
+
+    // --- Event Handlers for Single Prices ---
+    singlePriceForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const calcType = singleCalcTypeSelect.value;
+        const currency = singleCurrencySelect.value;
+        const price = parseFloat(singlePriceInput.value);
+        const base = parseFloat(singleBaseInput.value);
+        const free = parseFloat(singleFreeInput.value);
+
+        const allSinglePrices = getSinglePrices();
+
+        if (!allSinglePrices[calcType]) {
+            allSinglePrices[calcType] = {};
+        }
+        
+        // Check if an entry for this calcType and currency already exists
+        if (allSinglePrices[calcType][currency]) {
+            // Update existing entry
+            allSinglePrices[calcType][currency] = { price, base, free };
+            showAlert('Single price updated successfully!', 'success', singlePriceAlertContainer);
+        } else {
+            // Add new entry
+            allSinglePrices[calcType][currency] = { price, base, free };
+            showAlert('Single price added successfully!', 'success', singlePriceAlertContainer);
+        }
+        
+        saveSinglePrices(allSinglePrices);
+        renderSinglePrices();
+        resetSinglePriceForm();
+    });
+
+    singlePriceTableBody.addEventListener('click', (e) => {
+        const target = e.target.closest('button');
+        if (!target) return;
+
+        const { calcType, currency } = target.dataset;
+
+        if (target.classList.contains('delete-single-btn')) {
+            const password = prompt(`أدخل كلمة المرور لحذف السعر الفردي لـ ${calcType.charAt(0).toUpperCase() + calcType.slice(1)} - ${currency.toUpperCase()}:`);
+            if (password === DELETE_PASSWORD) {
+                const allSinglePrices = getSinglePrices();
+                
+                if (allSinglePrices[calcType] && allSinglePrices[calcType][currency]) {
+                    delete allSinglePrices[calcType][currency];
+                    if (Object.keys(allSinglePrices[calcType]).length === 0) {
+                        delete allSinglePrices[calcType];
+                    }
+                    saveSinglePrices(allSinglePrices);
+                    renderSinglePrices();
+                    showAlert('Single price deleted.', 'warning', singlePriceAlertContainer);
+                }
+            } else if (password !== null) {
+                showAlert('كلمة مرور خاطئة. لم يتم حذف السعر الفردي.', 'danger', singlePriceAlertContainer);
+            }
+        } else if (target.classList.contains('edit-single-btn')) {
+            const allSinglePrices = getSinglePrices();
+            const priceToEdit = allSinglePrices[calcType][currency];
+
+            singleCalcTypeSelect.value = calcType;
+            singleCurrencySelect.value = currency;
+            singlePriceInput.value = priceToEdit.price;
+            singleBaseInput.value = priceToEdit.base;
+            singleFreeInput.value = priceToEdit.free;
+
+            // Optional: Disable calcType and currency selection during edit if desired
+            // singleCalcTypeSelect.disabled = true;
+            // singleCurrencySelect.disabled = true;
+
+            // For now, no "edit mode" indicator needed as it's an overwrite
+            showAlert(`Editing single price for ${calcType.toUpperCase()} - ${currency.toUpperCase()}`, 'info', singlePriceAlertContainer);
+            window.scrollTo(0, 0); // Scroll to top to see the form
+        }
+    });
+
+    filterSingleCurrency.addEventListener('change', renderSinglePrices);
+
+    // Initial renders on page load
+    renderHistory();
+    renderSinglePrices();
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

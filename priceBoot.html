@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Diamond Calculator</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #D7D7D7; padding-top: 2rem; color: #273F4F; }
+    .card-calc { background: linear-gradient(135deg, #FE7743, #447D9B); color: #fff; }
+    .card-calc h2 { font-size: 2rem; }
+    .flag-img { width: 48px; height: 32px; object-fit: cover; border: 1px solid #ccc; border-radius: 3px; }
+    .result { min-height: 4rem; padding: 20px; border-radius: 10px; color: #fff; }
+    .btn-warning { background-color: #FE7743; border-color: #FE7743; }
+    .btn-warning:hover { background-color: #447D9B; border-color: #447D9B; }
+    .copy-btn { margin-top: 10px; padding: 5px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .copy-btn:hover { background-color: #45a049; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="row gy-4">
+    <div class="col-md-6">
+      <div class="card card-calc shadow-lg">
+        <div class="card-body">
+          <h2 class="card-title text-center mb-4">Diamond Calculator</h2>
+          <div class="mb-3">
+            <label for="price" class="form-label">Enter Price:</label>
+            <input type="text" id="price" class="form-control" placeholder="Enter price " onkeydown="if(event.key==='Enter') calculatePrice()">
+          </div>
+          <label class="form-label">Choose Currency:</label>
+          <div class="input-group mb-3">
+            <span class="input-group-text p-0"><img id="flag-icon" src="https://upload.wikimedia.org/wikipedia/commons/2/23/Flag_of_Saudi_Arabia.png" alt="flag" class="flag-img"></span>
+            <select id="currency" class="form-select" onchange="updateFlag()">
+              <option value="sar">SAR (Saudi Arabia)</option>
+              <option value="aed">AED (UAE)</option>
+              <option value="kw">KWD (Kuwait)</option>
+            </select>
+          </div>
+          <button class="btn btn-warning w-100 mb-2" onclick="calculatePrice()">Calculate</button>
+          <div id="result" class="result border rounded p-3 text-center">Enter a price to see the result.</div>
+          <button id="copy-btn" class="copy-btn" onclick="copyToClipboard()" style="display:none;">Copy Total Value</button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card shadow-lg">
+        <div class="card-body">
+          <h3 class="card-title mb-3">Calculation History</h3>
+          <ul id="historyList" class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  const flags = {
+    sar: 'https://upload.wikimedia.org/wikipedia/commons/2/23/Flag_of_Saudi_Arabia.png',
+    aed: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Flag_of_the_United_Arab_Emirates.svg/960px-Flag_of_the_United_Arab_Emirates.svg.png',
+    kw: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Flag_of_Kuwait_%283-2%29.svg/800px-Flag_of_Kuwait_%283-2%29.svg.png'
+  };
+
+  // ================= START OF MODIFICATION =================
+  
+  // 1. Your original price ranges are now called "default"
+  // They will be used if no custom ranges are found. NOTHING IS DELETED.
+  const defaultPriceRanges = {
+      "sar": [
+        { min: 1, max: 370, base: 44000, factor: 328, free: 0 },
+        { min: 371, max: 499, base: 55000, factor: 410, free: 0 },
+        { min: 500, max: 599, base: 72500, factor: 547, free: 2800 },
+  
+      ],
+      "aed": [
+        { min: 1, max: 350, base: 44000, factor: 308, free: 0 },
+        { min: 351, max: 490, base: 55000, factor: 385, free: 0 },
+        { min: 491, max: 599, base: 72500, factor: 510, free: 2800 },
+
+      ],
+      "kw": [
+        { min: 1, max: 28, base: 44000, factor: 25, free: 0 },
+
+      ]
+  };
+
+  // 2. This function gets the active ranges. It checks localStorage first.
+  function getActivePriceRanges() {
+      const customRangesString = localStorage.getItem('calculatorPriceRanges');
+      if (customRangesString) {
+          try {
+              const allCustomRanges = JSON.parse(customRangesString);
+              // We only want the 'diamond' ranges for this specific calculator
+              if (allCustomRanges.diamond) {
+                  console.log("Loading CUSTOM diamond ranges from localStorage.");
+                  // Merge custom ranges over the default ones.
+                  // This means if you add a custom "sar" range, it will be used instead of the default "sar".
+                  return { ...defaultPriceRanges, ...allCustomRanges.diamond };
+              }
+          } catch (e) {
+              console.error("Error parsing custom ranges from localStorage:", e);
+          }
+      }
+      // If there's nothing in localStorage, use the default ranges from above.
+      console.log("Using DEFAULT diamond ranges.");
+      return defaultPriceRanges;
+  }
+  
+  // 3. This is the main variable the rest of the code will use.
+  // It now dynamically holds either the default or the custom ranges.
+  const priceRanges = getActivePriceRanges();
+
+  // ================= END OF MODIFICATION =================
+
+  function updateFlag(){
+    document.getElementById('flag-icon').src = flags[document.getElementById('currency').value];
+  }
+  
+  let history = JSON.parse(localStorage.getItem('diamondHistory') || '[]');
+  const historyList = document.getElementById('historyList');
+  
+  function renderHistory() {
+    historyList.innerHTML = '';
+    history.slice().reverse().forEach(e => {
+      const li = document.createElement('li');
+      li.className = 'list-group-item';
+      li.textContent = `[${e.time}] ${e.currency.toUpperCase()} ${e.input} → ${e.total.toLocaleString()} Diamonds`;
+      historyList.appendChild(li);
+    });
+  }
+
+  function saveHistory() {
+    localStorage.setItem('diamondHistory', JSON.stringify(history));
+  }
+
+  function calculatePrice() {
+    const priceInput = document.getElementById("price").value.trim();
+    const currency = document.getElementById("currency").value;
+    const res = document.getElementById("result");
+    const copyBtn = document.getElementById("copy-btn");
+
+    const price = parseFloat(priceInput);
+    if (isNaN(price)) {
+      res.textContent = 'Please enter a numeric price.';
+      res.style.backgroundColor = '#dc3545'; // Red for error
+      copyBtn.style.display = 'none';
+      return;
+    }
+
+    // The code now uses the 'priceRanges' variable, which is dynamic
+    const rangesForCurrency = priceRanges[currency];
+    if (!rangesForCurrency) {
+        res.textContent = 'No price ranges defined for this currency.';
+        res.style.backgroundColor = '#dc3545';
+        copyBtn.style.display = 'none';
+        return;
+    }
+
+    const sel = rangesForCurrency.find(r => price >= r.min && price <= r.max);
+    if (!sel) {
+      res.textContent = 'Price is out of available range.';
+      res.style.backgroundColor = '#dc3545';
+      copyBtn.style.display = 'none';
+      return;
+    }
+
+    const base = sel.base * (price / sel.factor);
+    const free = sel.free > 0 ? sel.free * (price / sel.factor) : 0;
+    const total = base + free;
+
+    res.style.backgroundColor = '#343a40'; // Dark for success
+    res.innerHTML = `
+      <p class="mb-1"><span style="color: #28a745;">Base:</span> ${Math.round(base).toLocaleString()} Diamonds</p>
+      <p class="mb-1"><span style="color: #28a745;">Free:</span> ${Math.round(free).toLocaleString()} Diamonds</p>
+      <hr class="my-1" style="border-color: #6c757d;">
+      <p class="mb-0 fw-bold"><span style="color: #ffc107;">Total:</span> ${Math.round(total).toLocaleString()} Diamonds</p>
+    `;
+
+    copyBtn.style.display = 'inline-block';
+
+    history.push({
+      time: new Date().toLocaleTimeString(),
+      currency, input: priceInput, total: Math.round(total)
+    });
+    saveHistory();
+    renderHistory();
+  }
+
+  function copyToClipboard() {
+    const totalText = document.querySelector('#result p.fw-bold').textContent;
+    const valueToCopy = totalText.replace(/[^0-9]/g, '');
+    navigator.clipboard.writeText(valueToCopy).then(() => {
+        alert('Total copied: ' + parseInt(valueToCopy).toLocaleString());
+    });
+  }
+
+  renderHistory();
+  updateFlag();
+</script>
+
+</body>
+</html>
